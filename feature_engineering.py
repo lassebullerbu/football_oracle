@@ -166,11 +166,56 @@ def streak_and_restday_feature():
     df_oracle = df_oracle.rename(columns={'rest_day': 'away_restday'}).drop(columns=['club_id'])
     df_oracle.head(100)
 
-    df_oracle.to_csv('df_oracle_streak_and_restday.csv', index=False)
+
 
     return df_oracle
 
-def add_fatigue():
-    CODE HERE
+def add_ishone_isaway():
+    import kagglehub
+    path = kagglehub.dataset_download("davidcariboo/player-scores")
+    import pandas as pd
+    games = pd.read_csv(path + "/games.csv")
 
+    games = pd.read_csv(path + "/games.csv")
+    games['ishome'] = (games['home_club_id'] == games['homeid']).astype(int)
+    games['isaway'] = (games['away_club_id'] == games['homeid']).astype(int)
+    df = games[['ishome','isaway']]
+    return df
+
+def add_win_loss():
+    import kagglehub
+    path = kagglehub.dataset_download("davidcariboo/player-scores")
+    import pandas as pd
+    games = pd.read_csv(path + "/games.csv")
+
+
+    games["win_lose"] = games["home_club_goals"] - games["away_club_goals"]
+    games["win_lose"] = games["win_lose"].apply(lambda x: 1 if x > 0 else 0 if x == 0 else -1) # win for 1 ,equal for 0,lose for -1
+    df =games[["win_lose"]]
+    return df
+
+def add_club_opponent_position():
+    import kagglehub
+    path = kagglehub.dataset_download("davidcariboo/player-scores")
+    import pandas as pd
+    games = pd.read_csv(path + "/games.csv")
+
+    club_games = pd.read_csv(path + "/club_games.csv")
+
+
+    club_games2 = club_games.merge(
+    games[['game_id', 'home_club_position', 'away_club_position']],
+    on='game_id',
+    how='left')
+
+    games['own_position'] = club_games2.apply(
+    lambda row: row['home_club_position'] if row.get('is_home', False) or row['club_id'] == row.get('home_club_id')
+               else row['away_club_position'],
+    axis=1)
+
+    games['opponent_position'] = club_games2.apply(
+    lambda row: row['away_club_position'] if row['club_id'] == row.get('home_club_id') else row['home_club_position'],
+    axis=1)
+
+    df =games[["own_position","opponent_position"]]
     return df
