@@ -75,6 +75,100 @@ def add_marketvalue():
 
     return games_enhanced
 
+def streak_and_restday_feature():
+    """
+    streak_and_restday_feature def wil return dataframe
+    """
+
+    import kagglehub
+
+    # Download latest version
+    path = kagglehub.dataset_download("davidcariboo/player-scores")
+
+    print("Path to dataset files:", path)
+
+    import pandas as pd
+
+    club_games = pd.read_csv(path + "/club_games.csv")
+    games = pd.read_csv(path + "/games.csv")
+
+    """Home, TeamValue, TeamValue Away, Streak Home, Streak Away, Last Game within 4 days, Last Game within 4 days Away"""
+
+    # 2. transform to datetime
+    games['date'] = pd.to_datetime(games['date'])
+    if 'date' in club_games.columns:
+        club_games = club_games.drop(columns=['date'])
+    club_games = club_games.merge(games[['game_id', 'date']], on='game_id', how='left')
+
+    # sort by club and date
+    club_games = club_games.sort_values(['club_id', 'date'])
+
+    # 3. transform score (win=3, draw=1, lose=0)
+    def get_pts(row):
+        if row['is_win'] == 1: return 3
+        if row['own_goals'] == row['opponent_goals']: return 1
+        return 0
+
+    club_games['match_points'] = club_games.apply(get_pts, axis=1)
+
+    # 4. คำนวณ Streak (ไม่ต้อง fillna!)
+    # ใช้ shift(1) เพื่อไม่ให้โมเดลแอบดูผลนัดปัจจุบัน
+    club_games['streak_5'] = club_games.groupby('club_id')['match_points'].transform(
+        lambda x: x.rolling(window=5, min_periods=1).sum().shift(1)
+    )
+    #4. Calculate Streak for 2 last two games, sum point, shift 1 is not include current game(date)
+    club_games['streak_2'] = club_games.groupby('club_id')['match_points'].transform(
+        lambda x: x.rolling(window=2, min_periods=1).sum().shift(1)
+    )
+
+    # 5. Creat New Dataframe
+    df_oracle = games[['game_id', 'date', 'home_club_id', 'away_club_id',
+                    'home_club_goals', 'away_club_goals']].copy()
+
+    # Streak to Home
+    lookup = club_games[['game_id', 'club_id', 'streak_2','streak_5']]
+    df_oracle = df_oracle.merge(lookup, left_on=['game_id', 'home_club_id'],
+                            right_on=['game_id', 'club_id'], how='left')
+    df_oracle = df_oracle.rename(columns={'streak_2': 'home_streak_2',
+                                        'streak_5': 'home_streak_5'}).drop(columns=['club_id'])
+
+    #  Streak to Away
+    df_oracle = df_oracle.merge(lookup, left_on=['game_id', 'away_club_id'],
+                            right_on=['game_id', 'club_id'], how='left')
+    df_oracle = df_oracle.rename(columns={'streak_2': 'away_streak_2',
+                                        'streak_5': 'away_streak_5'}).drop(columns=['club_id'])
+
+    # 6. create win draw lose column
+    def get_result(row):
+        if row['home_club_goals'] > row['away_club_goals']: return 2 # Win
+        if row['home_club_goals'] == row['away_club_goals']: return 1 # Draw
+        return 0 # Loss
+    df_oracle['target_result'] = df_oracle.apply(get_result, axis=1)
+    df_oracle = df_oracle.dropna(subset=['home_streak_2', 'away_streak_2'])
+
+    games['date'] = pd.to_datetime(games['date'])
+    club_games_for_restday = club_games.sort_values(['club_id', 'date'])
+
+    club_games_for_restday['last_game'] = club_games.groupby('club_id')['date'].shift(1)
+
+    club_games_for_restday['rest_day'] = (club_games_for_restday['date'] - club_games_for_restday['last_game']).dt.days
+    club_games_for_restday['rest_day'] = club_games_for_restday['rest_day'].fillna(0)
+
+    # Streak to Home
+    lookup = club_games_for_restday[['game_id', 'club_id', 'rest_day']]
+    df_oracle = df_oracle.merge(lookup, left_on=['game_id', 'home_club_id'],
+                            right_on=['game_id', 'club_id'], how='left')
+    df_oracle = df_oracle.rename(columns={'rest_day': 'home_restday'}).drop(columns=['club_id'])
+
+    #  Streak to Away
+    df_oracle = df_oracle.merge(lookup, left_on=['game_id', 'away_club_id'],
+                            right_on=['game_id', 'club_id'], how='left')
+    df_oracle = df_oracle.rename(columns={'rest_day': 'away_restday'}).drop(columns=['club_id'])
+    df_oracle.head(100)
+
+    df_oracle.to_csv('df_oracle_streak_and_restday.csv', index=False)
+
+    return df_oracle
 
 def add_fatigue():
     CODE HERE
