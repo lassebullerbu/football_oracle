@@ -151,13 +151,13 @@ if st.button("🚀 Predict Result", use_container_width=True):
                 st.error(f"Local Calculation Error: {e}")
 
     # --- 6. DISPLAY RESULTS (SCOREBOARD STYLE) ---
-    # --- 6. DISPLAY RESULTS (SCOREBOARD STYLE) ---
+
     if result and "error" not in result:
         st.balloons()
         st.markdown("---")
 
-        # Logic สำหรับแปลงคำอ่านผลลัพธ์เป็นชื่อทีม
-        display_result = result['result'] # ค่าเริ่มต้น (เช่น Draw)
+        # Logic to display team win
+        display_result = result['result']
         if result['result'] == "Home Win":
             display_result = f"🏆 {home_team} WIN!"
         elif result['result'] == "Away Win":
