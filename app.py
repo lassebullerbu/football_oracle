@@ -104,7 +104,7 @@ try:
 
     with prev_col1:
         st.metric("Market Value (Avg Last 3 Games):", f"€{preview_features['own_market_value']:,.0f}")
-        st.metric("Position:", f"{int(preview_features['own_position'])} Points")
+        st.metric("Position:", f"{int(preview_features['own_position'])}")
         st.metric("Rest Days:", f"{preview_features['own_restday']} days")
         st.metric("Current 2 games Streak:", f"{int(preview_features['own_streak_2'])} Points")
         st.metric("Current 5 games Streak:", f"{int(preview_features['own_streak_5'])} Points")
@@ -114,7 +114,7 @@ try:
 
     with prev_col3:
         st.metric("Market Value (Avg Last 3 Games):", f"€{preview_features['opponent_market_value']:,.0f}")
-        st.metric("Position:", f"{int(preview_features['opponent_position'])} Points")
+        st.metric("Position:", f"{int(preview_features['opponent_position'])}")
         st.metric("Rest Days:", f"{preview_features['opponent_restday']} days")
         st.metric("Current 2 games Streak:", f"{int(preview_features['opponent_streak_2'])} Points")
         st.metric("Current 5 games Streak:", f"{int(preview_features['opponent_streak_5'])} Points")
