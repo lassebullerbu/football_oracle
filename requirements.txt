@@ -1,0 +1,18 @@
+# --- Web Framework & Server ---
+fastapi
+uvicorn
+streamlit
+
+# --- Data Processing ---
+pandas
+numpy
+joblib
+
+# --- Machine Learning Models ---
+# สำคัญ: ระบุเวอร์ชันให้ตรงกับที่เทรนมาเพื่อป้องกัน Error ตอน Load Model
+scikit-learn==1.7.2
+xgboost
+lightgbm
+
+# --- Networking ---
+requests
