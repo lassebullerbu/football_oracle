@@ -50,7 +50,7 @@ def load_ui_data():
 clubs_df, club_names = load_ui_data()
 
 # --- 3. UI HEADER ---
-st.title("⚽ Football Oracle Predictor")
+st.title("⚽ Football Predictor")
 #st.markdown(f"**Current Mode:** `{PREDICTION_MODE}` | **Backend:** `{"We can not show this HAHA!" if PREDICTION_MODE == 'API' else 'Local Engine'}`")
 if PREDICTION_MODE == 'API':
     # ดึงแค่ชื่อโดเมนหลักมาโชว์ (เช่น football-service-ew.a.run.app)
