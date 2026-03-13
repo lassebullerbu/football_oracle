@@ -50,8 +50,16 @@ def load_ui_data():
 clubs_df, club_names = load_ui_data()
 
 # --- 3. UI HEADER ---
-st.image("https://img.freepik.com/premium-vector/oracle-symbol-ethnic-protection-sign-spiritual-eye_543062-8378.jpg", width=80)
-st.title("⚽ Football Oracle")
+#st.image("https://img.freepik.com/premium-vector/oracle-symbol-ethnic-protection-sign-spiritual-eye_543062-8378.jpg", width=80)
+st.title("⚽ Football Oracle 🔮")
+#col_logo, col_text = st.columns([1, 1], vertical_alignment="center")
+#with col_logo:
+#    st.title("⚽ Football Oracle 🔮")
+
+#with col_text:
+#    st.image("https://img.freepik.com/premium-vector/oracle-symbol-ethnic-protection-sign-spiritual-eye_543062-8378.jpg", width=80)
+
+
 #st.markdown(f"**Current Mode:** `{PREDICTION_MODE}` | **Backend:** `{"We can not show this HAHA!" if PREDICTION_MODE == 'API' else 'Local Engine'}`")
 if PREDICTION_MODE == 'API':
     # ดึงแค่ชื่อโดเมนหลักมาโชว์ (เช่น football-service-ew.a.run.app)
@@ -95,19 +103,19 @@ try:
     prev_col1, prev_col2, prev_col3 = st.columns([3, 2, 3])
 
     with prev_col1:
-        st.metric("Market Value (Avg)", f"€{preview_features['own_market_value']:,.0f}")
-        st.metric("Rest Days", f"{preview_features['own_restday']} days")
-        st.caption(f"Current 2 games Streak: {preview_features['own_streak_2']}")
-        st.caption(f"Current 5 games Streak: {preview_features['own_streak_5']}")
+        st.metric("Market Value (Avg Last 3 Games):", f"€{preview_features['own_market_value']:,.0f}")
+        st.metric("Rest Days:", f"{preview_features['own_restday']} days")
+        st.metric("Current 2 games Streak:", f"{int(preview_features['own_streak_2'])} Points")
+        st.metric("Current 5 games Streak:", f"{int(preview_features['own_streak_5'])} Points")
 
     with prev_col2:
         st.markdown("<h3 style='text-align: center;'>VS</h3>", unsafe_allow_html=True)
 
     with prev_col3:
-        st.metric("Market Value (Avg)", f"€{preview_features['opponent_market_value']:,.0f}")
-        st.metric("Rest Days", f"{preview_features['opponent_restday']} days")
-        st.caption(f"Current 2 games Streak: {preview_features['opponent_streak_2']}")
-        st.caption(f"Current 5 games Streak: {preview_features['opponent_streak_5']}")
+        st.metric("Market Value (Avg Last 3 Games):", f"€{preview_features['opponent_market_value']:,.0f}")
+        st.metric("Rest Days:", f"{preview_features['opponent_restday']} days")
+        st.metric("Current 2 games Streak:", f"{int(preview_features['opponent_streak_2'])} Points")
+        st.metric("Current 5 games Streak:", f"{int(preview_features['opponent_streak_5'])} Points")
 
 except Exception as e:
     st.info("Please select valid teams to preview stats.")
@@ -143,23 +151,36 @@ if st.button("🚀 Predict Result", use_container_width=True):
                 st.error(f"Local Calculation Error: {e}")
 
     # --- 6. DISPLAY RESULTS (SCOREBOARD STYLE) ---
+    # --- 6. DISPLAY RESULTS (SCOREBOARD STYLE) ---
     if result and "error" not in result:
         st.balloons()
         st.markdown("---")
+
+        # Logic สำหรับแปลงคำอ่านผลลัพธ์เป็นชื่อทีม
+        display_result = result['result'] # ค่าเริ่มต้น (เช่น Draw)
+        if result['result'] == "Home Win":
+            display_result = f"🏆 {home_team} WIN!"
+        elif result['result'] == "Away Win":
+            display_result = f"🏆 {away_team} WIN!"
+        elif result['result'] == "Draw":
+            display_result = "🤝 IT'S A DRAW!"
 
         # Display Scores in a Scoreboard Style
         res_col1, res_col2, res_col3 = st.columns([2, 1, 2])
 
         with res_col1:
-            st.title(f" {result['home_score']} ")
+            st.markdown(f"<h1 style='text-align: center;'>{result['home_score']}</h1>", unsafe_allow_html=True)
+            st.caption(f"<p style='text-align: center;'>{home_team}</p>", unsafe_allow_html=True)
 
         with res_col2:
-            st.markdown("<h1 style='text-align: center; padding-top: 40px;'>-</h1>", unsafe_allow_html=True)
+            st.markdown("<h1 style='text-align: center; padding-top: 10px;'>-</h1>", unsafe_allow_html=True)
 
         with res_col3:
-            st.title(f" {result['away_score']} ")
+            st.markdown(f"<h1 style='text-align: center;'>{result['away_score']}</h1>", unsafe_allow_html=True)
+            st.caption(f"<p style='text-align: center;'>{away_team}</p>", unsafe_allow_html=True)
 
-        st.markdown(f"<h2 style='text-align: center; color: #FF4B4B;'>RESULT: {result['result']}</h2>", unsafe_allow_html=True)
+        # Show Result Label Below the Scores
+        st.markdown(f"<h2 style='text-align: center; color: #ae43a3;'>{display_result}</h2>", unsafe_allow_html=True)
 
         # Technical Details (Show Raw Model Output)
         with st.expander("🔍 Technical Details (Model Raw Output and Raw Input)"):
