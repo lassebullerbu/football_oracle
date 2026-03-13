@@ -1,0 +1,12 @@
+# .dockerignore
+.git/
+.streamlit/
+__pycache__/
+*.ipynb
+.env
+
+# raw_data
+raw_data/appearances.csv
+raw_data/club_games.csv
+raw_data/games.csv
+raw_data/player_valuations.csv

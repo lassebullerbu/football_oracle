@@ -105,8 +105,8 @@ def load_data():
     final_df = final_df[result_columns].dropna()
     print(f"✅ Dataset Ready! Total rows: {len(final_df)}")
 
-    selected_data = os.path.join(data_dir, "selected_data.csv")
-    final_df.to_csv(selected_data, index=False)
+    processed_data = os.path.join(data_dir, "processed_data.csv")
+    final_df.to_csv(processed_data, index=False)
 
 def load_transformed_dataset():
     """
@@ -117,7 +117,7 @@ def load_transformed_dataset():
     """
     # 1. กำหนด Path ของไฟล์ selected_data.csv
     base_path = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(base_path, "..", "raw_data", "selected_data.csv")
+    file_path = os.path.join(base_path, "..", "raw_data", "processed_data.csv")
 
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"❌ ไม่พบไฟล์ {file_path} กรุณารันฟังก์ชัน load_data() ก่อน")
@@ -138,9 +138,9 @@ def load_transformed_dataset():
     X_train_final, X_test_final = fit_transform_pipeline(pipeline, X_train, X_test)
 
     # --- Save Pipeline ---
-    model_dir = "./model/"
+    model_dir = "./models/"
     os.makedirs(model_dir, exist_ok=True)
-    pipeline_path = os.path.join(model_dir, "bundesliga_pipeline.pkl")
+    pipeline_path = os.path.join(model_dir, "football_pipeline.pkl")
     joblib.dump(pipeline, pipeline_path)
     print(f"✅ Pipeline (fitted) saved successfully at: {pipeline_path}")
 

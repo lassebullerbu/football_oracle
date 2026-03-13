@@ -1,2 +1,5 @@
-raw_data/
+raw_data/appearances.csv
+raw_data/club_games.csv
+raw_data/games.csv
+raw_data/player_valuations.csv
 .python-version
