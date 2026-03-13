@@ -51,10 +51,10 @@ clubs_df, club_names = load_ui_data()
 
 # --- 3. UI HEADER ---
 #st.image("https://img.freepik.com/premium-vector/oracle-symbol-ethnic-protection-sign-spiritual-eye_543062-8378.jpg", width=80)
-st.title("⚽ Football Oracle 🔮")
+st.title("⚽ Football Oracle 🧙🏻‍♀️🔮🪄")
 #col_logo, col_text = st.columns([1, 1], vertical_alignment="center")
 #with col_logo:
-#    st.title("⚽ Football Oracle 🔮")
+#    st.title("⚽ Football Oracle 🧙🏻‍♀️🔮🪄")
 
 #with col_text:
 #    st.image("https://img.freepik.com/premium-vector/oracle-symbol-ethnic-protection-sign-spiritual-eye_543062-8378.jpg", width=80)
