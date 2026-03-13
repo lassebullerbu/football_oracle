@@ -26,7 +26,7 @@ def load_data():
     except FileNotFoundError as e:
         raise FileNotFoundError(f"ไฟล์ไม่ครบใน {data_dir}: {e}")
 
-    games = games[games['competition_id'] == 'L1'].copy()
+    #games = games[games['competition_id'] == 'L1'].copy()
     games['date'] = pd.to_datetime(games['date'])
 
     club_games = club_games.merge(games[['game_id', 'date']], on='game_id', how='inner')
