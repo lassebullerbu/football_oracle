@@ -50,6 +50,7 @@ def load_ui_data():
 clubs_df, club_names = load_ui_data()
 
 # --- 3. UI HEADER ---
+st.image("https://img.freepik.com/premium-vector/oracle-symbol-ethnic-protection-sign-spiritual-eye_543062-8378.jpg", width=80)
 st.title("⚽ Football Oracle")
 #st.markdown(f"**Current Mode:** `{PREDICTION_MODE}` | **Backend:** `{"We can not show this HAHA!" if PREDICTION_MODE == 'API' else 'Local Engine'}`")
 if PREDICTION_MODE == 'API':
