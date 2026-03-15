@@ -13,11 +13,11 @@ def load_data():
     data_dir = "./raw_data/"
     print(f"--- 1. Loading Data from {data_dir} ---")
 
-    # ตรวจสอบว่ามีโฟลเดอร์หรือไม่
+    # check the folder and files exist
     if not os.path.exists(data_dir):
         raise FileNotFoundError(f"Folder '{data_dir}' not found")
 
-    # โหลดไฟล์ CSV จากโฟลเดอร์ rawdata
+    # load all necessary files, if any file is missing, raise an error
     try:
         games = pd.read_csv(os.path.join(data_dir, "games.csv"))
         club_games = pd.read_csv(os.path.join(data_dir, "club_games.csv"))
@@ -50,7 +50,7 @@ def load_data():
     print("--- 3. Engineering Club-Level Features ---")
     club_games = club_games.sort_values(['club_id', 'date'])
 
-    # คำนวณ pts จากข้อมูลที่มีในมือ
+    # calculate points
     club_games['pts'] = 0
     club_games.loc[club_games['own_goals'] > club_games['opponent_goals'], 'pts'] = 3
     club_games.loc[club_games['own_goals'] == club_games['opponent_goals'], 'pts'] = 1
@@ -65,20 +65,20 @@ def load_data():
     club_games['is_home'] = club_games['hosting'].map({'Home': 1, 'Away': 0})
 
     print("--- 4. Merging Opponent Perspective ---")
-    # เลือกฟีเจอร์ฝั่งตรงข้าม
-    # เราเลือก opponent_goals มาด้วยเพื่อให้มั่นใจว่ามันจะติดไปใน final_df
+
+    # select opponent_goals
     opp_features = club_games[[
         'game_id', 'club_id', 'own_restday', 'own_market_value',
         'own_position', 'own_streak_2', 'own_streak_5', 'own_goals'
     ]].copy()
 
-    # เปลี่ยนชื่อเพื่อให้กลายเป็นมุมมอง "คู่แข่ง" ของเรา
+    # change column names to opponent perspective
     opp_features.columns = [
         'game_id', 'opponent_id', 'opponent_restday', 'opponent_market_value',
         'opponent_position', 'opponent_streak_2', 'opponent_streak_5', 'opponent_goals'
     ]
 
-    # Merge: กรองคอลัมน์ที่อาจจะซ้ำใน club_games ออกก่อน merge เพื่อไม่ให้เกิด _x, _y
+    # Merge: filter only opponent features for the same game but different club_id (opponent_id)
     cols_to_keep = [
         'game_id', 'date', 'club_id', 'opponent_id', 'is_home',
         'own_restday', 'own_market_value', 'own_position',
@@ -110,12 +110,12 @@ def load_data():
 
 def load_transformed_dataset():
     """
-    1. load selected_data.csv
+    1. load processed_data.csv
     2. split Features/Targets
     3. split Train/Test
     4. Do Preprocessing Pipeline
     """
-    # 1. กำหนด Path ของไฟล์ selected_data.csv
+    # 1. setting path for processed_data.csv
     base_path = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(base_path, "..", "raw_data", "processed_data.csv")
 
@@ -127,7 +127,7 @@ def load_transformed_dataset():
     # 2. load dataset
     df = pd.read_csv(file_path, parse_dates=['date'])
 
-    # 3. สร้าง Dataset (X, y_result, y_score)
+    # 3. create Dataset (X, y_result, y_score)
     X, y_result, y_score = create_datasets(df)
 
     # 4. (Train 80% / Test 20%)
@@ -137,7 +137,7 @@ def load_transformed_dataset():
     pipeline = create_preprocessing_pipeline()
     X_train_final, X_test_final = fit_transform_pipeline(pipeline, X_train, X_test)
 
-    # --- Save Pipeline ---
+    # Save Pipeline
     model_dir = "./models/"
     os.makedirs(model_dir, exist_ok=True)
     pipeline_path = os.path.join(model_dir, "football_pipeline.pkl")

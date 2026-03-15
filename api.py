@@ -8,12 +8,13 @@ from engine import extract_club_features, predict_match_result_dict
 
 app = FastAPI(title="Football Oracle Prediction API")
 
-# --- 1. Load Assets use Path Relative for Docker Compatibility ---
+# Load Assets use Path Relative for Docker Compatibility
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_PATH, "models", "football_stack_reg_model.pkl")
 PIPELINE_PATH = os.path.join(BASE_PATH, "models", "football_pipeline.pkl")
 CLUBS_PATH = os.path.join(BASE_PATH, "raw_data", "clubs.csv")
 DATA_PATH = os.path.join(BASE_PATH, "raw_data", "processed_data.csv")
+COMP_PATH = os.path.join(BASE_PATH, "raw_data", "competitions.csv")
 
 try:
     # Load Model and Pipeline
@@ -22,13 +23,15 @@ try:
     # Load Clubs and Processed Data for API Logic
     clubs_df = pd.read_csv(CLUBS_PATH)
     processed_data = pd.read_csv(DATA_PATH)
+    competitions_df = pd.read_csv(COMP_PATH)
+
     # Create Dictionary of Club Stats for API
     stats_dict = extract_club_features(processed_data, clubs_df)
     print("✅ API Assets & Stats Dictionary Loaded Successfully")
 except Exception as e:
     print(f"❌ Error during asset loading: {str(e)}")
 
-# --- 2. Request Schema ---
+# Request Schema
 class PredictRequest(BaseModel):
     home_team: str
     away_team: str
