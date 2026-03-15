@@ -7,25 +7,27 @@ import datetime
 # input Logic from engine.py
 from engine import extract_club_features, predict_match_result_dict
 
-# --- 2. DATA INITIALIZATION ---
+# DATA INITIALIZATION
 @st.cache_resource
 def init_all_stats():
     # load processed data and clubs for stats dict creation
     proc_data = pd.read_csv("raw_data/processed_data.csv")
     c_df = pd.read_csv("raw_data/clubs.csv")
+    comp_df = pd.read_csv("raw_data/competitions.csv")
     # create stats_dict for API and Local Engine use
     stats_dict = extract_club_features(proc_data, c_df)
-    return stats_dict, c_df
+    return stats_dict, c_df, comp_df, proc_data
 
 # call s_dict and clubs_df at the start so they are cached and ready for both Preview and Prediction
 try:
-    s_dict, clubs_df = init_all_stats()
+    s_dict, clubs_df, comp_df, proc_data = init_all_stats()
+    league_names = sorted(comp_df[comp_df['type'] == 'domestic_league']['name'].unique())
     club_names = sorted(clubs_df['name'].unique())
 except Exception as e:
     st.error(f"Error loading initial data: {e}")
     st.stop()
 
-# --- 1. CONFIGURATION ---
+# CONFIGURATION
 # Swap Mode: 'API' or 'LOCAL'
 PREDICTION_MODE = 'API'
 
@@ -37,7 +39,7 @@ except (st.errors.StreamlitSecretNotFoundError, KeyError):
 
 st.set_page_config(page_title="Football Oracle", layout="wide")
 
-# --- 2. HELPERS ---
+#  HELPERS
 def get_logo_url(club_id):
     """get URL from Transfermarkt CDN by using club_id"""
     return f"https://tmssl.akamaized.net/images/wappen/head/{club_id}.png"
@@ -49,54 +51,92 @@ def load_ui_data():
 
 clubs_df, club_names = load_ui_data()
 
-# --- 3. UI HEADER ---
+# UI HEADER
 #st.image("https://img.freepik.com/premium-vector/oracle-symbol-ethnic-protection-sign-spiritual-eye_543062-8378.jpg", width=80)
 st.title("⚽ Football Oracle 🧙🏻‍♀️🔮🪄")
-#col_logo, col_text = st.columns([1, 1], vertical_alignment="center")
-#with col_logo:
-#    st.title("⚽ Football Oracle 🧙🏻‍♀️🔮🪄")
 
-#with col_text:
-#    st.image("https://img.freepik.com/premium-vector/oracle-symbol-ethnic-protection-sign-spiritual-eye_543062-8378.jpg", width=80)
-
-
-#st.markdown(f"**Current Mode:** `{PREDICTION_MODE}` | **Backend:** `{"We can not show this HAHA!" if PREDICTION_MODE == 'API' else 'Local Engine'}`")
 if PREDICTION_MODE == 'API':
-    # ดึงแค่ชื่อโดเมนหลักมาโชว์ (เช่น football-service-ew.a.run.app)
-    # ตัดส่วน https:// และ /predict ออก
     display_backend = API_URL.replace("https://", "").split("/")[0]
     backend_text = f"🌐 Cloud API"
 else:
     backend_text = "💻 Local Engine"
 
 st.markdown(f"**Current Mode:** `{PREDICTION_MODE}` | **Backend:** {backend_text}")
-# --- 4. SELECTION AREA (With Logos) ---
+# SELECTION AREA (With Logos)
+
 st.write("### 🏟️ Match Selection")
+
+# Narrow down to 3 functional categories to simplify data mapping
+category = st.radio("Select Category",
+                    ["Domestic League", "Domestic Cup", "Fantasy Match"],
+                    horizontal=True)
+
+filtered_names = []
+
+if category == "Fantasy Match":
+    # Show all clubs worldwide for cross-league matchups
+    filtered_names = club_names
+else:
+    # Map UI categories to 'type' column in competitions.csv
+    type_map = {
+        "Domestic League": "domestic_league",
+        "Domestic Cup": "domestic_cup"
+    }
+    target_type = type_map.get(category)
+
+    # Filter competitions by the selected type
+    league_in_cat = comp_df[comp_df['type'].fillna('').str.strip() == target_type]
+    league_options = sorted(league_in_cat['name'].unique())
+
+    if league_options:
+        selected_league = st.selectbox("Select League/Competition", league_options)
+
+        # Extract metadata for the chosen competition
+        comp_row = comp_df[comp_df['name'] == selected_league].iloc[0]
+
+        # Use domestic_league_code (e.g., 'GB1') to pull all relevant teams for that country
+        # This ensures Cup selections (like FA Cup) display all primary league clubs
+        target_code = comp_row['domestic_league_code']
+
+        if pd.notna(target_code) and target_code != "":
+            # Filter clubs based on the domestic_competition_id column (verified from CSV)
+            filtered_names = sorted(clubs_df[clubs_df['domestic_competition_id'] == target_code]['name'].unique())
+
+    # Fallback if no clubs are filtered
+    if not filtered_names:
+        st.warning(f"No clubs found for the selected {category}.")
+        filtered_names = club_names
+
+# UI DISPLAY (Dropdowns & Logos)
 col1, space, col2 = st.columns([10, 1, 10])
 
 with col1:
-    home_team = st.selectbox("🏠 Home Team", club_names, index=club_names.index("FC Bayern München") if "FC Bayern München" in club_names else 0)
+    # Home Team Selection
+    home_team = st.selectbox("🏠 Home Team", filtered_names, key="home_select")
     home_id = clubs_df[clubs_df['name'] == home_team]['club_id'].values[0]
-    st.image(get_logo_url(home_id), width=120)
+    st.image(get_logo_url(home_id), width=100)
 
 with col2:
-    away_team = st.selectbox("🚌 Away Team", club_names, index=club_names.index("Borussia Dortmund") if "Borussia Dortmund" in club_names else 1)
+    # Away Team Selection (default to second item to avoid initial match with Home)
+    away_idx = 1 if len(filtered_names) > 1 else 0
+    away_team = st.selectbox("🚌 Away Team", filtered_names, index=away_idx, key="away_select")
     away_id = clubs_df[clubs_df['name'] == away_team]['club_id'].values[0]
-    st.image(get_logo_url(away_id), width=120)
+    st.image(get_logo_url(away_id), width=100)
 
+# Set default match date to the near future
 match_date = st.date_input("📅 Match Date", value=datetime.date(2026, 3, 15))
 
-# --- 5. PREVIEW STATS (แสดงก่อน Predict) ---
+# PREVIEW STATS
 st.write("### 📊 Team Comparison (Preview)")
 
-# ดึงข้อมูลสถิติมาเตรียมไว้ก่อน
+# get stats for preview
 try:
-    # คำนวณ Features เบื้องต้นเพื่อมาโชว์ Preview
+    # calculate features for preview
     home_id = clubs_df[clubs_df['name'] == home_team]['club_id'].values[0]
     away_id = clubs_df[clubs_df['name'] == away_team]['club_id'].values[0]
 
     from engine import get_match_features
-    # จำลองการดึง Features ออกมา
+    # get Features
     preview_features = get_match_features(s_dict, home_id, away_id, match_date)
 
     # show preview features in a nice format (you can customize this part)
@@ -106,8 +146,8 @@ try:
         st.metric("Market Value (Avg Last 3 Games):", f"€{preview_features['own_market_value']:,.0f}")
         st.metric("Position:", f"{int(preview_features['own_position'])}")
         st.metric("Rest Days:", f"{preview_features['own_restday']} days")
-        st.metric("Current 2 games Streak:", f"{int(preview_features['own_streak_2'])} Points")
-        st.metric("Current 5 games Streak:", f"{int(preview_features['own_streak_5'])} Points")
+        st.metric("Current 2 games Streak:", f"{int(preview_features['own_streak_2'])} /6 Points")
+        st.metric("Current 5 games Streak:", f"{int(preview_features['own_streak_5'])} /15 Points")
 
     with prev_col2:
         st.markdown("<h3 style='text-align: center;'>VS</h3>", unsafe_allow_html=True)
@@ -116,13 +156,13 @@ try:
         st.metric("Market Value (Avg Last 3 Games):", f"€{preview_features['opponent_market_value']:,.0f}")
         st.metric("Position:", f"{int(preview_features['opponent_position'])}")
         st.metric("Rest Days:", f"{preview_features['opponent_restday']} days")
-        st.metric("Current 2 games Streak:", f"{int(preview_features['opponent_streak_2'])} Points")
-        st.metric("Current 5 games Streak:", f"{int(preview_features['opponent_streak_5'])} Points")
+        st.metric("Current 2 games Streak:", f"{int(preview_features['opponent_streak_2'])} /6 Points")
+        st.metric("Current 5 games Streak:", f"{int(preview_features['opponent_streak_5'])} /15 Points")
 
 except Exception as e:
     st.info("Please select valid teams to preview stats.")
 
-# --- 5. PREDICTION LOGIC ---
+# PREDICTION LOGIC
 if st.button("🚀 Predict Result", use_container_width=True):
     result = None
     date_str = match_date.strftime("%Y-%m-%d")
@@ -152,7 +192,7 @@ if st.button("🚀 Predict Result", use_container_width=True):
             except Exception as e:
                 st.error(f"Local Calculation Error: {e}")
 
-    # --- 6. DISPLAY RESULTS (SCOREBOARD STYLE) ---
+    #  DISPLAY RESULTS (SCOREBOARD STYLE)
 
     if result and "error" not in result:
         st.balloons()
