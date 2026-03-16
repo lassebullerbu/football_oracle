@@ -4,6 +4,7 @@ import requests
 import joblib
 import os
 import datetime
+import time
 # input Logic from engine.py
 from engine import extract_club_features, predict_match_result_dict
 
@@ -195,6 +196,15 @@ if st.button("🚀 Predict Result", use_container_width=True):
     #  DISPLAY RESULTS (SCOREBOARD STYLE)
 
     if result and "error" not in result:
+        latest_iteration = st.empty()
+        bar = st.progress(0)
+
+        for i in range(100):
+        # Update the progress bar with each iteration.
+            latest_iteration.text(f'Loading Results {i+1}')
+            bar.progress(i + 1)
+            time.sleep(0.005)
+
         st.balloons()
         st.markdown("---")
 
