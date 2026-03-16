@@ -149,9 +149,9 @@ def predict_match_result_dict(home_name, away_name, match_date,
     elif result_label == "Away Win" and a_int <= h_int:
         if a_int <= h_int:
             if (h_raw + a_raw - h_int - a_int) < 0:
-              a_int = a_int +1
-            else:
               h_int = h_int -1
+            else:
+              a_int = a_int +1
     elif result_label == "Draw" and h_int != a_int:
         avg_val = int(np.round((h_raw + a_raw) / 2))
         h_int, a_int = avg_val, avg_val
