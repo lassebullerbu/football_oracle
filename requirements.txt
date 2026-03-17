@@ -16,3 +16,7 @@ lightgbm
 
 # --- Networking ---
 requests
+
+#--- extra ---
+#if run or load model from deeplearning or KerasRegressor ,uncomment this to install tensorflow
+#tensorflow
