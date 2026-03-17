@@ -5,6 +5,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from engine import extract_club_features, predict_match_result_dict
+from datetime import datetime
 
 app = FastAPI(title="Football Oracle Prediction API")
 
@@ -39,7 +40,10 @@ class PredictRequest(BaseModel):
 
 @app.get("/")
 def root():
-    return {"message": "Football Oracle API is online"}
+    response ={
+        'greeting':"Football Oracle API is online",
+        'timestamp': datetime.now()}
+    return response
 
 @app.post("/predict")
 async def predict(req: PredictRequest):
