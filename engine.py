@@ -58,27 +58,23 @@ def extract_club_features(df, clubs_df):
 def get_match_features(club_stats_dict, club_id_1, club_id_2, input_date):
     match_features = {}
 
-    # Convert input_date to datetime if it's not already
-    if not isinstance(input_date, (pd.Timestamp, datetime.datetime)): # Corrected to datetime.datetime
+    #Date Format
+    if not isinstance(input_date, (pd.Timestamp, datetime.datetime)):
         input_date = pd.to_datetime(input_date)
 
-    # Get features for club 1 (home team)
     club_1_data = club_stats_dict.get(club_id_1)
-    if club_1_data is None:
-        raise ValueError(f"Club ID {club_id_1} not found in club_stats_dict")
-
-    # Get features for club 2 (away team)
     club_2_data = club_stats_dict.get(club_id_2)
-    if club_2_data is None:
-        raise ValueError(f"Club ID {club_id_2} not found in club_stats_dict")
 
-    # Calculate rest days
+    if club_1_data is None or club_2_data is None:
+        raise ValueError("Club ID not found in club_stats_dict")
+
     own_restday = (input_date - club_1_data['last_game']).days
     opponent_restday = (input_date - club_2_data['last_game']).days
 
-    match_features['is_home'] = 1 # As requested, home team perspective
-    match_features['own_restday'] = own_restday
-    match_features['opponent_restday'] = opponent_restday
+    match_features['own_restday'] = max(0, own_restday)
+    match_features['opponent_restday'] = max(0, opponent_restday)
+
+    match_features['is_home'] = 1
     match_features['own_market_value'] = club_1_data['market_value_avg_last_3']
     match_features['opponent_market_value'] = club_2_data['market_value_avg_last_3']
     match_features['own_position'] = club_1_data['position_most_recent']
