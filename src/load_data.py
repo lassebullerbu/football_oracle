@@ -146,3 +146,5 @@ def load_transformed_dataset():
 
     # return transformed data with targets and pipeline for future use (like Streamlit)
     return X_train_final, X_test_final, y_train_res, y_train_sco, y_test_res, y_test_sco, pipeline
+
+load_transformed_dataset()

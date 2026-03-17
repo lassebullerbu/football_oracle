@@ -130,8 +130,8 @@ def predict_match_result_dict(home_name, away_name, match_date,
     stack_raw_scores = model.predict(X_input_transform)
     h_raw, a_raw = stack_raw_scores[0]
 
-    # Decision Logic (Margin = 0.250)
-    def get_res_label(h, a, m=0.250):
+    # Decision Logic (Margin = 0.215)
+    def get_res_label(h, a, m=0.215):
         if (h - a) > m: return "Home Win"
         if (a - h) > m: return "Away Win"
         return "Draw"
