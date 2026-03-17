@@ -12,13 +12,8 @@ test:
 #         LOCAL SET UP
 # ----------------------------------
 
-install_requirements:
-	@pip install -r requirements.txt
-
-
-
-
 install:
+	@pip install -r requirements.txt
 	@pip install . -e
 # ----------------------------------
 #         HEROKU COMMANDS
@@ -39,7 +34,7 @@ streamlit:
 # ----------------------------------
 #    LOCAL INSTALL COMMANDS
 # ----------------------------------
-install:
+install_package:
 	@pip install . -U
 # ----------------------------------
 #         DOCKER COMMANDS
