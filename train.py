@@ -86,7 +86,10 @@ def train_model():
 
         #  push it to GCS Bucket to sync with MLflow
         # send model Artifact
-        mlflow.sklearn.log_model(model, "model")
+        mlflow.sklearn.log_model(
+            sk_model=model,
+            artifact_path="model",
+            registered_model_name="football_oracle_model")
 
         # send pipeline Artifact
         mlflow.log_artifact(pipeline_path, artifact_path="pipeline")
