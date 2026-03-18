@@ -33,7 +33,7 @@ except Exception as e:
 
 # CONFIGURATION
 # Swap Mode: 'API' or 'LOCAL'
-PREDICTION_MODE = 'LOCAL'
+PREDICTION_MODE = 'API'
 
 # Call API_URL safely Error: StreamlitSecretNotFoundError
 try:
