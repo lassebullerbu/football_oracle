@@ -35,7 +35,7 @@ def load_data():
     appearances['date'] = pd.to_datetime(appearances['date'])
     player_valuations['date_val'] = pd.to_datetime(player_valuations['date'])
 
-    print("--- 2. Calculating Market Value (Latest Only) ---")
+    print("--- 2. Calculating Market Value (Latest 3 games) ---")
     combined = appearances[['game_id', 'player_id', 'player_club_id', 'date']].merge(
         player_valuations[['player_id', 'date_val', 'market_value_in_eur']],
         on='player_id', how='left'
@@ -120,7 +120,7 @@ def load_transformed_dataset():
     file_path = os.path.join(base_path, "..", "raw_data", "processed_data.csv")
 
     if not os.path.exists(file_path):
-        raise FileNotFoundError(f"❌ ไม่พบไฟล์ {file_path} กรุณารันฟังก์ชัน load_data() ก่อน")
+        raise FileNotFoundError(f"❌ No file found at {file_path} please run load_data() first to create it")
 
     print(f"--- 🔄 Loading and Preprocessing Dataset from {file_path} ---")
 
