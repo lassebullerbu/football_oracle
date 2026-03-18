@@ -3,3 +3,7 @@ raw_data/club_games.csv
 raw_data/games.csv
 raw_data/player_valuations.csv
 .python-version
+mlflow.db
+__pycache__/
+*.pyc
+.DS_Store
