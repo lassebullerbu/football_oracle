@@ -1,0 +1,3 @@
+include raw_data/*.csv
+include models/*.pkl
+recursive-include src *.py

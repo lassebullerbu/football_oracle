@@ -16,6 +16,9 @@ lightgbm
 # --- Networking ---
 requests
 
+#--- extra ---
+#if run or load model from deeplearning or KerasRegressor ,uncomment this to install tensorflow
+#tensorflow
 mlflow==2.11.0
 google-cloud-storage
 google-auth
