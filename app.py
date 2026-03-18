@@ -10,6 +10,22 @@ import time
 from engine import extract_club_features, predict_match_result_dict
 #from stats import
 
+leagues = [
+    '🇩🇪 Bundesliga',           # Germany
+    '🇳🇱 Eredivisie',            # Netherlands
+    '🇧🇪 Jupiler Pro League',    # Belgium
+    '🇪🇸 Laliga',                # Spain
+    '🇵🇹 Liga Portugal Bwin',    # Portugal
+    '🇫🇷 Ligue 1',               # France
+    '🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League',      # England
+    '🇷🇺 Premier Liga',          # Russia
+    '🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scottish Premiership', # Scotland
+    '🇮🇹 Serie A',               # Italy
+    '🇬🇷 Super League 1',        # Greece
+    '🇹🇷 Super Lig',             # Turkey
+    '🇩🇰 Superligaen'            # Denmark
+]
+
 # DATA INITIALIZATION
 @st.cache_resource
 def init_all_stats():
@@ -126,10 +142,12 @@ with tab1:
     st.divider()
 with tab2:
     # Get domestic_league_code based on Select Name field of all domestic_leagues
-    league_in_cat = comp_df[comp_df['type'].fillna('').str.strip() == "domestic_league"]
-    leagues = sorted(name.replace("-", " ").title()for name in league_in_cat['name'].unique())
+    #league_in_cat = comp_df[comp_df['type'].fillna('').str.strip() == "domestic_league"]
+    #leagues = sorted(name.replace("-", " ").title()for name in league_in_cat['name'].unique())
+
     stats_league = st.selectbox("Select a domestic league",leagues,key=1)
-    comp_row = comp_df[comp_df['name'].str.replace("-", " ").str.title() == stats_league].iloc[0]
+    league_name_only = stats_league.split(' ', 1)[1]
+    comp_row = comp_df[comp_df['name'].str.replace("-", " ").str.title() == league_name_only].iloc[0]
     target_code = comp_row['domestic_league_code']
 
     # For league overview statistics, add kpis to club_df
@@ -240,7 +258,7 @@ with tab3:
 
     # Narrow down to 3 functional categories to simplify data mapping
     category = st.radio("Select Category",
-                        ["Domestic League", "Domestic Cup", "Any Match"],
+                        ["Domestic League", "Any Match"],
                         horizontal=True)
 
     filtered_names = []
@@ -251,20 +269,20 @@ with tab3:
     else:
         # Map UI categories to 'type' column in competitions.csv
         type_map = {
-            "Domestic League": "domestic_league",
-            "Domestic Cup": "domestic_cup"
+            "Domestic League": "domestic_league"
+            #"Domestic Cup": "domestic_cup"
         }
         target_type = type_map.get(category)
 
         # Filter competitions by the selected type
-        league_in_cat = comp_df[comp_df['type'].fillna('').str.strip() == target_type]
-        league_options = sorted(name.replace("-", " ").title()for name in league_in_cat['name'].unique())
+        #league_in_cat = comp_df[comp_df['type'].fillna('').str.strip() == target_type]
+        #league_options = sorted(name.replace("-", " ").title()for name in league_in_cat['name'].unique())
 
-        if league_options:
-            selected_league = st.selectbox("Select League/Competition", league_options,key=2)
-
+        if leagues:
+            selected_league = st.selectbox("Select League/Competition", leagues,key=2)
+            league_name_only = selected_league.split(' ', 1)[1]
             # Extract metadata for the chosen competition
-            comp_row = comp_df[comp_df['name'].str.replace("-", " ").str.title() == selected_league].iloc[0]
+            comp_row = comp_df[comp_df['name'].str.replace("-", " ").str.title() == league_name_only].iloc[0]
 
             # Use domestic_league_code (e.g., 'GB1') to pull all relevant teams for that country
             # This ensures Cup selections (like FA Cup) display all primary league clubs
