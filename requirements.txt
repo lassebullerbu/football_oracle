@@ -9,7 +9,6 @@ numpy
 joblib
 
 # --- Machine Learning Models ---
-# สำคัญ: ระบุเวอร์ชันให้ตรงกับที่เทรนมาเพื่อป้องกัน Error ตอน Load Model
 scikit-learn==1.7.2
 xgboost
 lightgbm
@@ -20,3 +19,6 @@ requests
 #--- extra ---
 #if run or load model from deeplearning or KerasRegressor ,uncomment this to install tensorflow
 #tensorflow
+mlflow==2.11.0
+google-cloud-storage
+google-auth
