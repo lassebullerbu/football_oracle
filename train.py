@@ -113,10 +113,10 @@ def train_local_model():
     os.makedirs(model_dir, exist_ok=True)
     model_path = os.path.join(model_dir, "football_stack_reg_model.pkl")
     joblib.dump(model, model_path)
-    print(f"✅ Model saved successfully at: {model_path}")
+    print(f"Model saved successfully at: {model_path}")
 
 if __name__ == "__main__":
     #setup_mlflow() # comment this out if you don't want to use MLflow
-    #train_model() # comment this out if you want to use MLflow
+    #train_model() # comment this out if you don't want to use MLflow to train and log metrics/artifacts
 
     train_local_model() # comment this out if you want to use MLflow
