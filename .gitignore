@@ -2,10 +2,7 @@ raw_data/appearances.csv
 raw_data/club_games.csv
 raw_data/player_valuations.csv
 .python-version
-<<<<<<< HEAD
 mlflow.db
-=======
->>>>>>> 1803eaf276d180ca7eb884f013d893d105f4ffb3
 __pycache__/
 *.pyc
 .DS_Store
