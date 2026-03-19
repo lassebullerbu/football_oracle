@@ -85,7 +85,7 @@ st.markdown(f"**Current Mode:** `{PREDICTION_MODE}` | **Backend:** {backend_text
 # SELECTION AREA (With Logos)
 
 # tabs
-tab1, tab2, tab3 = st.tabs(["🤝 Intro", "📊 Statistics", "🪄 Prediction"])
+tab1, tab2, tab3, tab4, = st.tabs(["🤝 Intro", "📊 Statistics", "🪄 Prediction","🏿 QR Code"])
 
 with tab1:
     st.header("Team")
@@ -426,3 +426,7 @@ with tab3:
             # Technical Details (Show Raw Model Output)
             with st.expander("🔍 Technical Details (Model Raw Output and Raw Input)"):
                 st.json(result)
+
+with tab4:
+    st.write("### Scan the QR Code to Play with the Football Oracle API on your own device! 📱")
+    st.image("./raw_data/qrcode.jpg", width=500)
