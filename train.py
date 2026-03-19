@@ -116,7 +116,6 @@ def train_local_model():
     y_pred_res = [get_res_label(h, a) for h, a in y_pred_sco]
     acc = accuracy_score(y_test_res, y_pred_res)
 
-    mlflow.log_metrics({"R2_Score": test_r2, "Accuracy": acc})
     print(f"R2: {test_r2:.4f}, Accuracy: {acc:.4f}")
 
     # 4. Save Artifacts to Local
