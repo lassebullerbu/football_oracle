@@ -93,7 +93,7 @@ def load_data():
     final_df.loc[final_df['own_goals'] < final_df['opponent_goals'], 'target_result'] = 0
 
     result_columns = [
-        'game_id', 'date', 'is_home',
+        'game_id', 'date','club_id' ,'is_home',
         'own_restday', 'opponent_restday',
         'own_market_value', 'opponent_market_value',
         'own_position', 'opponent_position',
@@ -107,6 +107,7 @@ def load_data():
 
     processed_data = os.path.join(data_dir, "processed_data.csv")
     final_df.to_csv(processed_data, index=False)
+    print(f"✅ Processed data saved successfully at: {processed_data}")
 
 def load_transformed_dataset():
     """
@@ -147,4 +148,5 @@ def load_transformed_dataset():
     # return transformed data with targets and pipeline for future use (like Streamlit)
     return X_train_final, X_test_final, y_train_res, y_train_sco, y_test_res, y_test_sco, pipeline
 
+load_data()
 load_transformed_dataset()
