@@ -15,7 +15,7 @@ from lightgbm import LGBMRegressor
 from sklearn.multioutput import MultiOutputRegressor
 
 # Import data loader from src
-from src.load_data import load_transformed_dataset
+from src.load_data import load_transformed_dataset, load_data, load_data_from_kaggle
 
 # GCP & MLflow Configuration
 GCS_BUCKET = "gs://football-oracle-mlflow-artifacts/mlflow-data"
@@ -97,16 +97,27 @@ def train_model():
         print(f"--- 💾 All Artifacts (Model & Pipeline) synced with GCS ---")
 
 def train_local_model():
+
     # 1. Build Model
-    print("--- Building Model Architecture and Loading Processed Data ---")
+    print("--- Building Model Architecture ---")
     model = build_model()
 
     # 2. Load Data & Pipeline
+    print("--- Loading and Preprocessing Dataset ---")
+    load_data_from_kaggle()
     (X_train, X_test, y_train_res, y_train_sco, y_test_res, y_test_sco, pipeline) = load_transformed_dataset()
 
     # 3. Train Model
     print("--- Training Model Locally ---")
     model.fit(X_train, y_train_sco)
+
+    y_pred_sco = model.predict(X_test)
+    test_r2 = r2_score(y_test_sco, y_pred_sco)
+    y_pred_res = [get_res_label(h, a) for h, a in y_pred_sco]
+    acc = accuracy_score(y_test_res, y_pred_res)
+
+    mlflow.log_metrics({"R2_Score": test_r2, "Accuracy": acc})
+    print(f"R2: {test_r2:.4f}, Accuracy: {acc:.4f}")
 
     # 4. Save Artifacts to Local
     model_dir = "models"
