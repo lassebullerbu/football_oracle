@@ -49,7 +49,7 @@ except Exception as e:
 
 # CONFIGURATION
 # Swap Mode: 'API' or 'LOCAL'
-PREDICTION_MODE = 'API'  # Change to 'API' to use the cloud API instead of local engine
+PREDICTION_MODE = 'LOCAL'  # Change to 'API' to use the cloud API instead of local engine
 
 # Call API_URL safely Error: StreamlitSecretNotFoundError
 try:
