@@ -93,7 +93,7 @@ with tab1:
     with col11:
         st.subheader("Lasse")
         st.image("https://d26jy9fbi4q9wx.cloudfront.net/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBNmFRQkE9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--19523149968279a8f8ee4baa07e1a49c7a32e113/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2RTNKbGMybDZaVjkwYjE5bWFXeHNXd2hwQWNocEFjaDdCam9KWTNKdmNEb09ZWFIwWlc1MGFXOXUiLCJleHAiOm51bGwsInB1ciI6InZhcmlhdGlvbiJ9fQ==--b67d9ded4d28d0969fbb98b4c21b79257705a99a/IMG_4827.jpg", width=100)
-        st.markdown("*The business guy*")
+        st.markdown("*The German business guy*")
     with col12:
         st.subheader("Cong")
         st.image("https://d26jy9fbi4q9wx.cloudfront.net/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBNDgyQlE9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--399c25ed125b8ef6db808dec4087c32e487eb0f0/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2RTNKbGMybDZaVjkwYjE5bWFXeHNXd2hwQWNocEFjaDdCam9KWTNKdmNEb09ZWFIwWlc1MGFXOXUiLCJleHAiOm51bGwsInB1ciI6InZhcmlhdGlvbiJ9fQ==--b67d9ded4d28d0969fbb98b4c21b79257705a99a/IMG_4766.jpg", width=100)
@@ -105,22 +105,27 @@ with tab1:
     st.divider()
     st.header("Problem")
     st.caption("Football is one of the most unpredictable major sports!")
-    st.markdown("""
-    The low-scoring dynamics mean a single goal often decides a game. Just think of your favorite team, and everyone probably can think of a situation where the final result was so unlikely to happen.
-    While this makes the sport so beautfil, it actually is a nightmare for data scientists. Stats models are extremely noisy.<br>
-    Fans, bettors, and analysts often rely on gut feeling or fragmented data views, which leads to <strong>poor calibration of true match probabilities</strong>.
-    """, unsafe_allow_html=True)
-    st.divider()
-    st.header("Solution")
-    col11, col12 = st.columns([3,1],width="stretch")
+    col11, col12 = st.columns([2,1],width="stretch")
     with col11:
-        st.caption("Yet, we try to predict football matches! (Win, Draw, Loss)")
         st.markdown("""
-        We do this by <strong>predicting the number of goals per team</strong> using a <strong>stacking regression model</strong>.<br>
-        We tried classification models too, but they came short to the <strong>>60% accuracy</strong> of our final regression model.<br>
+        The <stron>low-scoring dynamics</strong> mean a single goal often decides a game. Just think of your favorite team, and everyone probably can think of a situation where the final result was so unlikely to happen.
+        While this makes the sport so beautfil, it actually is a nightmare for data scientists. Stats models are extremely noisy.<br>
+        Fans, bettors, and analysts often rely on gut feeling or fragmented data views, which leads to <strong>poor calibration of true match probabilities</strong>.
         """, unsafe_allow_html=True)
     with col12:
-        st.metric("Accuracy",value="60% Accuracy",label_visibility="hidden")
+        st.metric("Most frequent score:",value="1:1")
+    st.divider()
+    st.header("Solution")
+    st.caption("Yet, we try to predict football matches! (Win, Draw, Loss)")
+    st.markdown("""
+    We do this by <strong>predicting the number of goals per team</strong> using a <strong>stacking regression model</strong>.<br>
+    We tried classification models too, but they came short to the <strong>>60% accuracy</strong> of our final regression model.<br>
+    """, unsafe_allow_html=True)
+    col11, col12 = st.columns([2,1],width="stretch")
+    with col11:
+        st.metric("Accuracy",value="60% for Win / Draw / Loss")
+    with col12:
+        st.metric("Accuracy",value="15% for exact score")
     st.divider()
     st.header("Dataset")
     st.markdown("""
