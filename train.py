@@ -96,6 +96,27 @@ def train_model():
 
         print(f"--- 💾 All Artifacts (Model & Pipeline) synced with GCS ---")
 
+def train_local_model():
+    # 1. Build Model
+    print("--- Building Model Architecture and Loading Processed Data ---")
+    model = build_model()
+
+    # 2. Load Data & Pipeline
+    (X_train, X_test, y_train_res, y_train_sco, y_test_res, y_test_sco, pipeline) = load_transformed_dataset()
+
+    # 3. Train Model
+    print("--- Training Model Locally ---")
+    model.fit(X_train, y_train_sco)
+
+    # 4. Save Artifacts to Local
+    model_dir = "models"
+    os.makedirs(model_dir, exist_ok=True)
+    model_path = os.path.join(model_dir, "football_stack_reg_model.pkl")
+    joblib.dump(model, model_path)
+    print(f"✅ Model saved successfully at: {model_path}")
+
 if __name__ == "__main__":
-    setup_mlflow()
-    train_model()
+    #setup_mlflow() # comment this out if you don't want to use MLflow
+    #train_model() # comment this out if you want to use MLflow
+
+    train_local_model() # comment this out if you want to use MLflow
