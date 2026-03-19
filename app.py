@@ -109,7 +109,7 @@ with tab1:
     with col11:
         st.markdown("""
         The <stron>low-scoring dynamics</strong> mean a single goal often decides a game. Just think of your favorite team, and everyone probably can think of a situation where the final result was so unlikely to happen.
-        While this makes the sport so beautfil, it actually is a nightmare for data scientists. Stats models are extremely noisy.<br>
+        While this makes the sport so beautiful, it actually is a nightmare for data scientists. Stats models are extremely noisy.<br>
         Fans, bettors, and analysts often rely on gut feeling or fragmented data views, which leads to <strong>poor calibration of true match probabilities</strong>.
         """, unsafe_allow_html=True)
     with col12:
