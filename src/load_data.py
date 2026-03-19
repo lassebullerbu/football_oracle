@@ -8,6 +8,7 @@ from .processor import (
     create_preprocessing_pipeline,
     fit_transform_pipeline
 )
+import kagglehub
 
 def load_data():
     data_dir = "./raw_data/"
@@ -148,5 +149,126 @@ def load_transformed_dataset():
     # return transformed data with targets and pipeline for future use (like Streamlit)
     return X_train_final, X_test_final, y_train_res, y_train_sco, y_test_res, y_test_sco, pipeline
 
-load_data()
-load_transformed_dataset()
+def load_data_from_kaggle():
+    # set to True if you want to load data from Kaggle API instead of local raw_data/ folder
+    print("--- 1. Downloading and Loading Data ---")
+    path = kagglehub.dataset_download("davidcariboo/player-scores")
+
+    games = pd.read_csv(f"{path}/games.csv")
+    games.to_csv("./raw_data/games.csv", index=False)
+
+    club_games = pd.read_csv(f"{path}/club_games.csv")
+    club_games.to_csv("./raw_data/club_games.csv", index=False)
+
+    appearances = pd.read_csv(f"{path}/appearances.csv")
+    appearances.to_csv("./raw_data/appearances.csv", index=False)
+
+    player_valuations = pd.read_csv(f"{path}/player_valuations.csv")
+    player_valuations.to_csv("./raw_data/player_valuations.csv", index=False)
+
+    clubs = pd.read_csv(f"{path}/clubs.csv")
+    clubs.to_csv("./raw_data/clubs.csv", index=False)
+
+    commpetitions = pd.read_csv(f"{path}/competitions.csv")
+    commpetitions.to_csv("./raw_data/competitions.csv", index=False)
+
+    data_dir = "./raw_data/"
+    # check the folder and files exist
+    if not os.path.exists(data_dir):
+        raise FileNotFoundError(f"Folder '{data_dir}' not found")
+
+    # load all necessary files, if any file is missing, raise an error
+    try:
+        games = pd.read_csv(os.path.join(data_dir, "games.csv"))
+        club_games = pd.read_csv(os.path.join(data_dir, "club_games.csv"))
+        appearances = pd.read_csv(os.path.join(data_dir, "appearances.csv"))
+        player_valuations = pd.read_csv(os.path.join(data_dir, "player_valuations.csv"))
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"ไฟล์ไม่ครบใน {data_dir}: {e}")
+
+    #games = games[games['competition_id'] == 'L1'].copy()
+    games['date'] = pd.to_datetime(games['date'])
+
+    club_games = club_games.merge(games[['game_id', 'date']], on='game_id', how='inner')
+    club_games['date'] = pd.to_datetime(club_games['date'])
+
+    appearances['date'] = pd.to_datetime(appearances['date'])
+    player_valuations['date_val'] = pd.to_datetime(player_valuations['date'])
+
+    print("--- 2. Calculating Market Value (Latest 3 games) ---")
+    combined = appearances[['game_id', 'player_id', 'player_club_id', 'date']].merge(
+        player_valuations[['player_id', 'date_val', 'market_value_in_eur']],
+        on='player_id', how='left'
+    )
+    combined = combined[combined['date'] >= combined['date_val']]
+    combined = combined.sort_values(['game_id', 'player_id', 'date_val'], ascending=[True, True, False])
+    combined = combined.drop_duplicates(subset=['game_id', 'player_id'])
+
+    club_mv = combined.groupby(['game_id', 'player_club_id'])['market_value_in_eur'].sum().reset_index()
+    club_mv.columns = ['game_id', 'club_id', 'agg_market_value']
+
+    print("--- 3. Engineering Club-Level Features ---")
+    club_games = club_games.sort_values(['club_id', 'date'])
+
+    # calculate points
+    club_games['pts'] = 0
+    club_games.loc[club_games['own_goals'] > club_games['opponent_goals'], 'pts'] = 3
+    club_games.loc[club_games['own_goals'] == club_games['opponent_goals'], 'pts'] = 1
+
+    group = club_games.groupby('club_id')['pts']
+    club_games['own_streak_2'] = group.transform(lambda x: x.rolling(2, min_periods=1).sum().shift(1)).fillna(0)
+    club_games['own_streak_5'] = group.transform(lambda x: x.rolling(5, min_periods=1).sum().shift(1)).fillna(0)
+    club_games['own_restday'] = (club_games['date'] - club_games.groupby('club_id')['date'].shift(1)).dt.days.fillna(7)
+
+    club_games = club_games.merge(club_mv, on=['game_id', 'club_id'], how='left')
+    club_games['own_market_value'] = club_games.groupby('club_id')['agg_market_value'].ffill().fillna(1e6)
+    club_games['is_home'] = club_games['hosting'].map({'Home': 1, 'Away': 0})
+
+    print("--- 4. Merging Opponent Perspective ---")
+
+    # select opponent_goals
+    opp_features = club_games[[
+        'game_id', 'club_id', 'own_restday', 'own_market_value',
+        'own_position', 'own_streak_2', 'own_streak_5', 'own_goals'
+    ]].copy()
+
+    # change column names to opponent perspective
+    opp_features.columns = [
+        'game_id', 'opponent_id', 'opponent_restday', 'opponent_market_value',
+        'opponent_position', 'opponent_streak_2', 'opponent_streak_5', 'opponent_goals'
+    ]
+
+    # Merge: filter only opponent features for the same game but different club_id (opponent_id)
+    cols_to_keep = [
+        'game_id', 'date', 'club_id', 'opponent_id', 'is_home',
+        'own_restday', 'own_market_value', 'own_position',
+        'own_streak_2', 'own_streak_5', 'own_goals'
+    ]
+
+    final_df = club_games[cols_to_keep].merge(opp_features, on=['game_id', 'opponent_id'], how='inner')
+
+    print("--- 5. Generating Targets and Cleaning ---")
+    final_df['target_result'] = 1
+    final_df.loc[final_df['own_goals'] > final_df['opponent_goals'], 'target_result'] = 2
+    final_df.loc[final_df['own_goals'] < final_df['opponent_goals'], 'target_result'] = 0
+
+    result_columns = [
+        'game_id', 'date','club_id' ,'is_home',
+        'own_restday', 'opponent_restday',
+        'own_market_value', 'opponent_market_value',
+        'own_position', 'opponent_position',
+        'own_streak_2', 'opponent_streak_2',
+        'own_streak_5', 'opponent_streak_5',
+        'own_goals', 'opponent_goals', 'target_result'
+    ]
+
+    final_df = final_df[result_columns].dropna()
+    print(f"✅ Dataset Ready! Total rows: {len(final_df)}")
+
+    processed_data = os.path.join(data_dir, "processed_data.csv")
+    final_df.to_csv(processed_data, index=False)
+    print(f"✅ Processed data saved successfully at: {processed_data}")
+
+#load_data()
+load_data_from_kaggle()
+#load_transformed_dataset()
