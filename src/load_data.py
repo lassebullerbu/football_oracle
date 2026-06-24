@@ -2,12 +2,20 @@ import pandas as pd
 import numpy as np
 import os
 import joblib
-from .processor import (
-    create_datasets,
-    split_data,
-    create_preprocessing_pipeline,
-    fit_transform_pipeline
-)
+try:
+    from .processor import (
+        create_datasets,
+        split_data,
+        create_preprocessing_pipeline,
+        fit_transform_pipeline
+    )
+except ImportError:
+    from processor import (
+        create_datasets,
+        split_data,
+        create_preprocessing_pipeline,
+        fit_transform_pipeline
+    )
 import kagglehub
 
 def load_data():
@@ -269,6 +277,7 @@ def load_data_from_kaggle():
     final_df.to_csv(processed_data, index=False)
     print(f"✅ Processed data saved successfully at: {processed_data}")
 
-#load_data()
-load_data_from_kaggle()
-#load_transformed_dataset()
+if __name__ == '__main__':
+    #load_data()
+    load_data_from_kaggle()
+    #load_transformed_dataset()

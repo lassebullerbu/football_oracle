@@ -4,7 +4,7 @@ import numpy as np
 import datetime
 import os
 
-data_dir = "./raw_data/"
+data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "raw_data")
 clubs = pd.read_csv(os.path.join(data_dir, "clubs.csv"))
 
 def find_club(search_string, clubs_df):
