@@ -98,21 +98,6 @@ st.markdown(f"**Current Mode:** `{PREDICTION_MODE}` | **Backend:** {backend_text
 tab1, tab2, tab3, tab4, = st.tabs(["🤝 Intro", "📊 Statistics", "🪄 Prediction","🏿 QR Code"])
 
 with tab1:
-    st.header("Team")
-    col11, col12, col13 = st.columns(3,width=750)
-    with col11:
-        st.subheader("Lasse")
-        st.image("https://d26jy9fbi4q9wx.cloudfront.net/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBNmFRQkE9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--19523149968279a8f8ee4baa07e1a49c7a32e113/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2RTNKbGMybDZaVjkwYjE5bWFXeHNXd2hwQWNocEFjaDdCam9KWTNKdmNEb09ZWFIwWlc1MGFXOXUiLCJleHAiOm51bGwsInB1ciI6InZhcmlhdGlvbiJ9fQ==--b67d9ded4d28d0969fbb98b4c21b79257705a99a/IMG_4827.jpg", width=100)
-        st.markdown("*The German business guy*")
-    with col12:
-        st.subheader("Cong")
-        st.image("https://d26jy9fbi4q9wx.cloudfront.net/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBNDgyQlE9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--399c25ed125b8ef6db808dec4087c32e487eb0f0/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2RTNKbGMybDZaVjkwYjE5bWFXeHNXd2hwQWNocEFjaDdCam9KWTNKdmNEb09ZWFIwWlc1MGFXOXUiLCJleHAiOm51bGwsInB1ciI6InZhcmlhdGlvbiJ9fQ==--b67d9ded4d28d0969fbb98b4c21b79257705a99a/IMG_4766.jpg", width=100)
-        st.markdown("*The Chinese coding brain*")
-    with col13:
-        st.subheader("Siwalak")
-        st.image("https://d26jy9fbi4q9wx.cloudfront.net/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBMUEyQlE9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--29ef512c3baf6f950050c19cfccbb0c26e9994d0/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lKYW5CbFp3WTZCa1ZVT2hOeVpYTnBlbVZmZEc5ZlptbHNiRnNJYVFISWFRSElld1k2Q1dOeWIzQTZEbUYwZEdWdWRHbHZiZz09IiwiZXhwIjpudWxsLCJwdXIiOiJ2YXJpYXRpb24ifX0=--23cdbdf9871e44adeb4d843a03b0793a5f08394b/87DDABED-4B78-43EB-99A9-4CC56FDF3269_1_201_a.jpeg", width=100)
-        st.markdown("*The ~~Swiss~~ Thai army knife*")
-    st.divider()
     st.header("Problem")
     st.caption("Football is one of the most unpredictable major sports!")
     col11, col12 = st.columns([2,1],width="stretch")
